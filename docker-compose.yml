@@ -1,0 +1,23 @@
+version: '3.8'
+
+services:
+  github-issue-analyzer:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: github-issue-analyzer
+    ports:
+      - "8000:8000"
+    environment:
+      - GITHUB_TOKEN=${GITHUB_TOKEN}
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - DATABASE_PATH=/app/data/issues.db
+    volumes:
+      - ./data:/app/data # Persist SQLite database
+    restart: unless-stopped
+    healthcheck:
+      test: [ "CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/')" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
